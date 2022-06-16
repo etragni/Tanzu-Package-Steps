@@ -571,7 +571,7 @@ Change the fqdn with your DOMAIN RECORD
 
 >```yaml
 > ingress:
->   enabled: `false`
+>   enabled: `true`
 >   virtual_host_fqdn: "prometheus.corp.tanzu"
 >   prometheus_prefix: "/"
 >   alertmanager_prefix: "/alertmanager/"
@@ -613,9 +613,49 @@ tanzu package installed list -A
 ```
 
 
-### Note
+### Note if you have proble with prometheus pod to start (write permission on volume)
 
-ADD OVERLAY
+ADD Chown Pod :
+
+
+```
+vi pod-prometheus-fix.yaml
+```
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: prometheus-fix-volume
+  namespace: tanzu-system-monitoring
+  labels:
+spec:
+  volumes:
+  - name: storage-volume
+    persistentVolumeClaim:
+      claimName: prometheus-server
+  containers:
+  - name: fix-container
+    image: ubuntu
+    imagePullPolicy: IfNotPresent
+    command: ["/bin/sh"]
+    args: ["-c", "chown -R 65534:65534 /data && echo 'true'"]
+    volumeMounts:
+    - mountPath: /data
+      name: storage-volume
+```
+ then delete the prometheus deployment:
+ 
+```
+kubectl delete deploy -n tanzu-system-monitoring prometheus
+```
+
+now apply the pod to change permission of the volume:
+
+```
+kubectl apply -f pod-prometheus-fix.yaml
+```
+when thwe pod is running and complete, the deployment of prometheus pod will be ready.
 
 
 Create a DNS record to map `prometheus.system.tanzu` to the External IP address of the Envoy load balancer.
