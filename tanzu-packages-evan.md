@@ -764,6 +764,52 @@ Confirm that the grafana package is installed. For example:
 tanzu package installed list -A
 ```
 
+### Note if you have proble with Grafana pod to start (write permission on volume)
+
+ADD Chown Pod :
+
+
+```
+vi pod-grafana-fix.yaml
+```
+
+```yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: grafana-fix-volume
+  namespace: tanzu-system-dashboards
+  labels:
+spec:
+  volumes:
+  - name: storage-volume
+    persistentVolumeClaim:
+      claimName: grafana-pvc
+  containers:
+  - name: fix-container
+    image: ubuntu
+    imagePullPolicy: IfNotPresent
+    command: ["/bin/sh"]
+    args: ["-c", "chown -R 472:472 /var/lib/grafana && echo 'true'"]
+    volumeMounts:
+    - mountPath: /var/lib/grafana
+      name: storage-volume
+  restartPolicy: OnFailure
+```
+ then delete the grafana deployment:
+ 
+```
+kubectl delete deploy -n tanzu-system-dashboards grafana
+```
+
+now apply the pod to change permission of the volume:
+
+```
+kubectl apply -f pod-grafana-fix.yaml
+```
+when the pod is running and complete, the deployment of grafana pod will be ready.
+
+
 The grafana package and its resources, such as the grafana app, are installed in the namespace that you specify when running the tanzu package install command.
 
 
