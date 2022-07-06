@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: prometheus-fix-volume
+  namespace: tanzu-system-monitoring
+  labels:
+spec:
+  volumes:
+  - name: storage-volume
+    persistentVolumeClaim:
+      claimName: prometheus-server
+  containers:
+  - name: fix-container
+    image: ubuntu
+    imagePullPolicy: IfNotPresent
+    command: ["/bin/sh"]
+    args: ["-c", "chown -R 65534:65534 /data && echo 'true'"]
+    volumeMounts:
+    - mountPath: /data
+      name: storage-volume
