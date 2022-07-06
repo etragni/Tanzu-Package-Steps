@@ -955,7 +955,9 @@ kubectl -n tanzu-package-repo-global annotate packageinstalls harbor ext.packagi
 >```
 Remove all the Harbor pod:
 ```
-kubectl delte pods --all -n tanzu-system-regstry
+kubectl delete deploy -n tanzu-system-registry --all
+kubectl delete sts -n tanzu-system-registry --all
+
 ```
 
 Verify that the package is reconciling again
