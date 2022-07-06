@@ -787,7 +787,6 @@ spec:
     persistentVolumeClaim:
       claimName: grafana-pvc
   containers:
-  restartPolicy: OnFailure
   - name: fix-container
     image: ubuntu
     imagePullPolicy: IfNotPresent
