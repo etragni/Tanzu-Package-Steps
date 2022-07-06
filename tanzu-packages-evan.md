@@ -635,6 +635,7 @@ spec:
     persistentVolumeClaim:
       claimName: prometheus-server
   containers:
+  restartPolicy: OnFailure
   - name: fix-container
     image: ubuntu
     imagePullPolicy: IfNotPresent
@@ -647,7 +648,7 @@ spec:
  then delete the prometheus deployment:
  
 ```
-kubectl delete deploy -n tanzu-system-monitoring prometheus
+kubectl delete deploy -n tanzu-system-monitoring prometheus-server
 ```
 
 now apply the pod to change permission of the volume:
@@ -786,6 +787,7 @@ spec:
     persistentVolumeClaim:
       claimName: grafana-pvc
   containers:
+  restartPolicy: OnFailure
   - name: fix-container
     image: ubuntu
     imagePullPolicy: IfNotPresent
